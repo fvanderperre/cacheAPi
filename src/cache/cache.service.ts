@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import { Logger } from 'nestjs-pino'
 import { EntryDTO } from './cache.model'
-import { CacheRepository } from './cache.repository'
-import { Entry } from './cache.schema'
+import { CacheRepository } from './repository/cache.repository'
+import { Entry } from './repository/cache.schema'
 
 @Injectable()
 export class CacheService {
@@ -16,7 +16,7 @@ export class CacheService {
     this.cacheRepository.get(key)
       .then((entry: Entry) => {
         if (entry != null) {
-          this.logger.log('Cache hit')
+          this.updateTTL(key, entry.value)
           return entry.value
         }
         this.logger.log('CacheMiss')
@@ -24,21 +24,31 @@ export class CacheService {
 
       })
 
-  private generateRandomString = (): string => 'fixme' + Math.random()
+  private generateRandomString = (): string => 'imsoRandom' + Math.random()
 
   private generateNewEntry = (key: string): string => {
+    // FIXME handle cache size
     const value = this.generateRandomString()
     this.cacheRepository.create({ key, value })
     return value
   }
 
+  private updateTTL = (key: string, value: string): void => {
+    this.logger.log('Cache hit')
+    this.cacheRepository.updateTTL({ key, value })
+  }
+
   getAll = (): Promise<EntryDTO[]> =>
     this.cacheRepository.getAll()
       .then((entries: Entry[]) =>
-        entries.map(({ key, value }) => ({ key, value }))
+        entries.map(({ key, value }) => {
+          this.cacheRepository.updateTTL({ key, value })
+          return ({ key, value })
+        })
       )
 
   createOrUpdate = (entry: EntryDTO): Promise<any> =>
+  // FIXME handle cache size
     this.cacheRepository.createOrUpdate(entry)
       .then((entry: Entry) => ({
         key: entry.key,

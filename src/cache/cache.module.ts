@@ -2,9 +2,9 @@ import { Module } from '@nestjs/common'
 import { MongooseModule } from '@nestjs/mongoose'
 import { LoggerModule } from 'nestjs-pino'
 import { CacheController } from './cache.controller'
-import { CacheRepository } from './cache.repository'
-import { CacheSchema, Entry } from './cache.schema'
+import { CacheRepository } from './repository/cache.repository'
 import { CacheService } from './cache.service'
+import { CacheSchema, Entry } from './repository/cache.schema'
 
 @Module({
     imports: [

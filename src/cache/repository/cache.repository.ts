@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import { Model } from 'mongoose'
-import { EntryDTO } from './cache.model'
+import { EntryDTO } from '../cache.model'
 import { Entry, EntryDocument } from './cache.schema'
 
 @Injectable()
@@ -19,9 +19,15 @@ export class CacheRepository {
   getAll = (): Promise<Entry[]> => this.cacheModel.find().exec()
 
   createOrUpdate = ({ key, value }: EntryDTO): Promise<Entry> =>
-    this.cacheModel.findOneAndUpdate({ key }, { key, value }, {
+    this.cacheModel.findOneAndUpdate({ key },
+      {
+        key,
+        value,
+        expireAt: new Date(),
+      }, {
       upsert: true,
-      useFindAndModify: false
+      useFindAndModify: false,
+      new: true,
     }).exec()
 
   delete = (key: string): Promise<{ deletedCount?: number }> =>
@@ -30,5 +36,9 @@ export class CacheRepository {
 
   deleteAll = (): Promise<{ deletedCount?: number }> =>
     this.cacheModel.deleteMany({}).exec()
+
+  updateTTL = ({ key, value }: EntryDTO): Promise<Entry> =>
+    this.createOrUpdate({ key, value })
+  // FIXME find another way to do that
 
 }
