@@ -17,10 +17,10 @@ export class CacheController {
     return this.cacheService.getAll()
   }
 
-  @Put()
+  @Put('/entry/:key')
   createOrUpdate(
-    @Body() key: string,
-    @Body() value: string,
+    @Param('key') key: string,
+    @Body() value: any,
   ) {
     return this.cacheService.createOrUpdate(key, value)
   }

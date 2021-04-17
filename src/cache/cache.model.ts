@@ -5,7 +5,6 @@ export interface Cache {
 
 export interface Entry {
     value: any
-    ttl: number
 }
 
 export interface EntryDTO {
