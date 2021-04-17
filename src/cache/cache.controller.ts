@@ -1,12 +1,40 @@
-import { Controller, Get } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, Put } from '@nestjs/common'
 import { CacheService } from './cache.service'
 
 @Controller('cache')
 export class CacheController {
-  constructor(private readonly appService: CacheService) {}
+  constructor(private readonly cacheService: CacheService) { }
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello()
+  @Get('/entry/:key')
+  get(
+    @Param('key') key: string,
+  ) {
+    return this.cacheService.get(key)
   }
+
+  @Get('/entries')
+  getAll() {
+    return this.cacheService.getAll()
+  }
+
+  @Put()
+  createOrUpdate(
+    @Body() key: string,
+    @Body() value: string,
+  ) {
+    return this.cacheService.createOrUpdate(key, value)
+  }
+
+  @Delete('/entry/:key')
+  delete(
+    @Param('key') key: string,
+  ) {
+    return this.cacheService.delete(key)
+  }
+
+  @Delete('/entries')
+  deleteAll() {
+    return this.cacheService.deleteAll()
+  }
+
 }
