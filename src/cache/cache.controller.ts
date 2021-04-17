@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Put } from '@nestjs/common'
+import { EntryDTO } from './cache.model'
 import { CacheService } from './cache.service'
 
 @Controller('cache')
@@ -8,32 +9,32 @@ export class CacheController {
   @Get('/entry/:key')
   get(
     @Param('key') key: string,
-  ) {
+  ): Promise<string> {
     return this.cacheService.get(key)
   }
 
   @Get('/entries')
-  getAll() {
+  getAll(): Promise<EntryDTO[]> {
     return this.cacheService.getAll()
   }
 
-  @Put('/entry/:key')
+  @Put('/entry')
   createOrUpdate(
     @Param('key') key: string,
-    @Body() value: any,
-  ) {
-    return this.cacheService.createOrUpdate(key, value)
+    @Body() entry: EntryDTO
+  ): Promise<EntryDTO> {
+    return this.cacheService.createOrUpdate(entry)
   }
 
   @Delete('/entry/:key')
   delete(
     @Param('key') key: string,
-  ) {
+  ): Promise<number> {
     return this.cacheService.delete(key)
   }
 
   @Delete('/entries')
-  deleteAll() {
+  deleteAll(): Promise<number> {
     return this.cacheService.deleteAll()
   }
 

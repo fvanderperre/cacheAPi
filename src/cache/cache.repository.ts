@@ -1,27 +1,34 @@
 import { Injectable } from '@nestjs/common'
+import { InjectModel } from '@nestjs/mongoose'
+import { Model } from 'mongoose'
+import { EntryDTO } from './cache.model'
+import { Entry, EntryDocument } from './cache.schema'
 
 @Injectable()
 export class CacheRepository {
+  constructor(@InjectModel(Entry.name) private cacheModel: Model<EntryDocument>) { }
 
-
-  get = (key: string): any => {
-    return  null
+  create = (entry: EntryDTO): Promise<Entry> => {
+    const createdEntry = new this.cacheModel(entry)
+    return createdEntry.save()
   }
 
-  getAll = (): Array<any> => {
-    return []
-  }
+  get = (key: string): Promise<Entry> =>
+    this.cacheModel.findOne({ key }).exec()
 
-  createOrUpdate = (key: string, value: any): void => {
+  getAll = (): Promise<Entry[]> => this.cacheModel.find().exec()
 
-  }
+  createOrUpdate = ({ key, value }: EntryDTO): Promise<Entry> =>
+    this.cacheModel.findOneAndUpdate({ key }, { key, value }, {
+      upsert: true,
+      useFindAndModify: false
+    }).exec()
 
-  delete = (key: string): void => {
+  delete = (key: string): Promise<{ deletedCount?: number }> =>
+    this.cacheModel.deleteOne({ key }).exec()
 
-  }
 
-  deleteAll = (): void => {
-
-  }
+  deleteAll = (): Promise<{ deletedCount?: number }> =>
+    this.cacheModel.deleteMany({}).exec()
 
 }
